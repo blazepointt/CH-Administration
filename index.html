@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chicken Gun — Портал Администрации Серверов</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            admin: {
+              950: '#060913',
+              900: '#0b1120',
+              850: '#111827',
+              800: '#1e293b',
+              700: '#334155'
+            },
+            accent: {
+              amber: '#f59e0b',
+              gold: '#fbbf24',
+              emerald: '#10b981',
+              crimson: '#ef4444',
+              sky: '#38bdf8'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #060913;
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.55);
+    }
+    .glass-input {
+      background: rgba(11, 17, 32, 0.85);
+      border: 1px solid rgba(51, 65, 85, 0.75);
+    }
+    .glass-input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #090e1a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    .pb-safe {
+      padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Header Bar -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        
+        <!-- Brand Logo & Title -->
+        <div class="flex items-center space-x-3 cursor-pointer group" onclick="switchTab('verification')">
+          <div class="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-500/50 p-0.5 shadow-lg shadow-amber-500/10 group-hover:border-amber-400 transition-colors shrink-0">
+            <!-- A.jpg with intelligent fallback -->
+            <img 
+              id="header-logo-img" 
+              src="A.jpg" 
+              alt="Логотип Администрации" 
+              class="w-full h-full object-cover rounded-xl"
+              onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23000\'><circle cx=\'50\' cy=\'50\' r=\'46\' stroke=\'%23fff\' stroke-width=\'4\' fill=\'%230a0d14\'/><path d=\'M50 18 L76 30 V56 C76 72 50 84 50 84 C50 84 24 72 24 56 V30 Z\' stroke=\'%23fff\' stroke-width=\'4\' fill=\'none\'/><text x=\'50\' y=\'63\' font-size=\'32\' font-weight=\'900\' font-family=\'Arial\' fill=\'%23fff\' text-anchor=\'middle\'>A</text></svg>';"
+            />
+            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950"></span>
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-base sm:text-lg text-white tracking-tight uppercase">Chicken Gun</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">ADMIN</span>
+            </div>
+            <p class="text-[11px] sm:text-xs text-slate-400 font-medium">Серверная Инспекция & Античит</p>
+          </div>
+        </div>
+
+        <!-- Desktop Nav Tabs (Without cheat check tab) -->
+        <nav class="hidden lg:flex items-center space-x-1 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <button id="nav-verification" onclick="switchTab('verification')" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-white bg-slate-800 shadow-sm border border-slate-700/80">
+            Верификация
+          </button>
+          <button id="nav-reports" onclick="switchTab('reports')" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/50">
+            Форум жалоб
+          </button>
+          <button id="nav-bans" onclick="switchTab('bans')" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/50">
+            База банов <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono">5k+</span>
+          </button>
+          <button id="nav-rules" onclick="switchTab('rules')" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/50">
+            Регламент
+          </button>
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="flex items-center space-x-3">
+          <div class="hidden sm:block text-right">
+            <span class="text-[11px] text-emerald-400 font-mono flex items-center justify-end space-x-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>18 модераторов online</span>
+            </span>
+          </div>
+          <button onclick="switchTab('reports')" class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-md shadow-amber-500/20 active:scale-95 transition-transform">
+            Подать жалобу
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Ticker Notice -->
+  <div class="bg-gradient-to-r from-slate-950 via-amber-950/40 to-slate-950 border-b border-amber-500/20 py-2 px-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between text-[11px] sm:text-xs text-amber-200">
+      <div class="flex items-center space-x-2 truncate">
+        <span class="px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-300 font-bold uppercase text-[9px] shrink-0">Внимание</span>
+        <span class="truncate">Администрация никогда не просит пароли от почт, Google Play или аккаунтов! Проверка только в Telegram.</span>
+      </div>
+      <span class="hidden md:inline font-mono text-slate-400 shrink-0">Официальная Инспекция 2026</span>
+    </div>
+  </div>
+
+  <!-- Main Content Body -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 pb-safe">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: OFFICIAL VERIFICATION & INSPECTOR PROFILE               -->
+    <!-- ============================================================== -->
+    <section id="tab-verification" class="tab-pane space-y-8 block">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-3">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-wide uppercase">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Реестр подлинных аккаунтов инспекции</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+          Официальная Верификация <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">Администрации Серверов</span>
+        </h1>
+        <p class="text-slate-400 text-xs sm:text-base max-w-2xl mx-auto">
+          Единственный официальный профиль модерации Chicken Gun, уполномоченный проводить проверки игроков на читы и стороннее ПО.
+        </p>
+      </div>
+
+      <div class="max-w-4xl mx-auto">
+        <div class="glass-panel rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden border border-slate-800">
+          
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
+            
+            <!-- Left Column: Inspector Image Container -->
+            <div class="md:col-span-5 flex flex-col items-center">
+              <div 
+                onclick="openLightbox()" 
+                class="relative group cursor-pointer w-full max-w-[270px] sm:max-w-xs rounded-2xl overflow-hidden border-2 border-amber-500/50 shadow-2xl shadow-amber-500/10 bg-slate-950 transition-all duration-300 hover:border-amber-400 hover:scale-[1.02]"
+              >
+                <!-- Verification Tag -->
+                <div class="absolute top-3 left-3 z-10 bg-emerald-500 text-slate-950 font-black text-[10px] sm:text-xs px-2.5 py-1 rounded-full flex items-center space-x-1 shadow-lg">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>ОФИЦИАЛЬНО</span>
+                </div>
+
+                <!-- Administration.jpg with smooth handling and fallback -->
+                <div class="aspect-[9/15] w-full overflow-hidden relative bg-slate-900 flex items-center justify-center">
+                  <img 
+                    id="admin-card-img"
+                    src="Administration.jpg" 
+                    alt="Официальный аккаунт Администрации Chicken Gun"
+                    class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    onerror="handleAdminPhotoFallback(this)"
+                  />
+                  <!-- Zoom overlay -->
+                  <div class="absolute inset-0 bg-slate-950/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2 text-white text-xs font-semibold">
+                    <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg>
+                    <span>Нажмите для увеличения</span>
+                  </div>
+                </div>
+
+                <div class="p-2.5 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                  <span>Файл: Administration.jpg</span>
+                  <span class="text-amber-400">Открыть 🔍</span>
+                </div>
+              </div>
+
+              <!-- Quick File Picker helper in case file opened locally without webserver -->
+              <div class="mt-2.5 text-center">
+                <label for="local-photo-input" class="text-[11px] text-slate-400 hover:text-amber-300 underline cursor-pointer">
+                  Загрузить другое фото с устройства
+                </label>
+                <input type="file" id="local-photo-input" accept="image/*" class="hidden" onchange="previewLocalPhoto(event)">
+              </div>
+            </div>
+
+            <!-- Right Column: Verification Details & Mandatory Text -->
+            <div class="md:col-span-7 space-y-4 sm:space-y-5">
+              
+              <!-- Mandatory Signature Callout -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/40 space-y-2">
+                <div class="flex items-center space-x-2 text-amber-400 text-[11px] font-extrabold uppercase tracking-wider">
+                  <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>
+                  </svg>
+                  <span>Официальное подтверждение</span>
+                </div>
+                <h2 class="text-base sm:text-xl font-black text-amber-300 tracking-tight leading-snug">
+                  Подтверждено Главными модераторами проекта! Просьба не вестись на фейк!, Администрация только такая.
+                </h2>
+              </div>
+
+              <!-- Detailed description -->
+              <div class="space-y-2.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p>
+                  <strong class="text-white">Администрация серверов игры Chicken Gun</strong> круглосуточно проводит проверку подозрительных игроков на использование стороннего софта (чит-меню, спидхак, аимбот, полет).
+                </p>
+                <p class="text-slate-400">
+                  Все официальные инспекторы используют строго утверждённый скин: кура в серой шляпе мафиози, красных прямоугольных очках и с двумя золотыми пистолетами. Любой другой аккаунт — подделка.
+                </p>
+              </div>
+
+              <!-- Security Badges -->
+              <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-left">
+                  <div class="text-[11px] font-bold text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>Статус в Telegram</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-1 truncate">«занимаемся проверкой на читы»</div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-left">
+                  <div class="text-[11px] font-bold text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span>Пароли и донат</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-1">Никогда не запрашиваются!</div>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="pt-2 flex flex-wrap gap-3">
+                <button onclick="switchTab('reports')" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-slate-950 bg-amber-500 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 text-center">
+                  Подать жалобу на читера
+                </button>
+                <button onclick="switchTab('bans')" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-slate-300 hover:text-white bg-slate-900 border border-slate-700 transition-colors text-center">
+                  База банов (5,000)
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Global Statistics Counter Grid -->
+      <div class="max-w-4xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="glass-panel p-4 rounded-2xl text-center border border-slate-800">
+          <div class="text-2xl sm:text-3xl font-black text-rose-400 font-mono tracking-tight">10,840+</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Заблокировано читеров</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl text-center border border-slate-800">
+          <div class="text-2xl sm:text-3xl font-black text-amber-400 font-mono tracking-tight">8,450+</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Рассмотрено жалоб</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl text-center border border-slate-800">
+          <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight">24 ч</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Проверка в Telegram</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl text-center border border-slate-800">
+          <div class="text-2xl sm:text-3xl font-black text-sky-400 font-mono tracking-tight">18</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Модераторов онлайн</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: COMPLAINT FORUM & SUBMISSION                            -->
+    <!-- ============================================================== -->
+    <section id="tab-reports" class="tab-pane space-y-6 hidden">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-2">
+        <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-wide uppercase">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          <span>Официальный Форум Жалоб</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Подача жалобы на читера
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm">
+          Заполните данные для отправки патрульного бота и проверки подозрительного игрока.
+        </p>
+      </div>
+
+      <!-- Severe False-Report Warning Callout (Prompt Requirement) -->
+      <div class="max-w-3xl mx-auto rounded-2xl bg-gradient-to-r from-rose-950/60 via-slate-900 to-rose-950/60 border-2 border-rose-500/50 p-4 sm:p-5 flex items-start space-x-3.5 shadow-xl shadow-rose-950/30">
+        <div class="p-2 rounded-xl bg-rose-500/25 text-rose-400 shrink-0 mt-0.5">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="space-y-1">
+          <h4 class="text-xs sm:text-sm font-bold text-rose-300 uppercase tracking-wide">Строгий регламент ответственности:</h4>
+          <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-semibold">
+            если жалоба отправленная вами окажется ложной, ваш аккаунт будет находится в бане на 2 дня
+          </p>
+        </div>
+      </div>
+
+      <!-- Complaint Input Form -->
+      <div class="max-w-3xl mx-auto">
+        <div class="glass-panel rounded-3xl p-5 sm:p-8 border border-slate-800 shadow-xl">
+          <form id="complaint-form" onsubmit="handleComplaintSubmit(event)" class="space-y-4 sm:space-y-5">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
+              <div class="space-y-1.5">
+                <label for="violator-nick" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Ник нарушителя <span class="text-rose-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="violator-nick" 
+                  required 
+                  placeholder="Никнейм нарушителя в игре" 
+                  class="glass-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-colors"
+                />
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="violator-tg" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Telegram игрока (@юзернейм) <span class="text-slate-500 font-normal">(если известен)</span>
+                </label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-amber-400 text-xs font-bold pointer-events-none">@</span>
+                  <input 
+                    type="text" 
+                    id="violator-tg" 
+                    placeholder="telegram_user" 
+                    class="glass-input w-full pl-8 pr-3.5 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="reporter-nick" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Ваш игровой ник в Chicken Gun <span class="text-rose-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="reporter-nick" 
+                  required 
+                  placeholder="Ваш никнейм" 
+                  class="glass-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-colors"
+                />
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="server-room" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Комната / Сервер <span class="text-rose-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="server-room" 
+                  required 
+                  placeholder="Например: EU-Sandbox #812" 
+                  class="glass-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-colors"
+                />
+              </div>
+
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="complaint-reason" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Категория чита / Нарушения <span class="text-rose-500">*</span>
+              </label>
+              <select 
+                id="complaint-reason" 
+                required 
+                class="glass-input w-full px-3.5 py-2.5 rounded-xl text-white text-xs sm:text-sm outline-none transition-colors cursor-pointer"
+              >
+                <option value="" disabled selected>Выберите тип софта...</option>
+                <option value="SpeedHack (Быстрый бег / Полет)">SpeedHack (Быстрый бег / Полет)</option>
+                <option value="AimBot & Silent-Aim (Стрельба сквозь стены)">AimBot & Silent-Aim (Стрельба сквозь стены)</option>
+                <option value="Бессмертие (GodMode)">Бессмертие (GodMode)</option>
+                <option value="Спам объектами и краш сервера">Спам объектами и краш сервера</option>
+                <option value="Фейк Администрации">Попытка выдать себя за Администрацию игры</option>
+                <option value="Модифицированный APK со сторонним ПО">Модифицированный APK со сторонним ПО</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="proof-url" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Ссылка на видео / доказательства <span class="text-rose-500">*</span>
+              </label>
+              <input 
+                type="url" 
+                id="proof-url" 
+                required 
+                placeholder="https://youtu.be/... или ссылка на диск/скриншот" 
+                class="glass-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-colors"
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="complaint-desc" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Подробности инцидента <span class="text-rose-500">*</span>
+              </label>
+              <textarea 
+                id="complaint-desc" 
+                rows="3" 
+                required 
+                placeholder="Опишите поведение подозреваемого, оружие и ситуацию на сервере..." 
+                class="glass-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-colors custom-scrollbar"
+              ></textarea>
+            </div>
+
+            <div class="flex items-start space-x-2.5 pt-1">
+              <input 
+                type="checkbox" 
+                id="ban-agreement" 
+                required 
+                class="mt-1 w-4 h-4 rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-900"
+              />
+              <label for="ban-agreement" class="text-xs text-slate-300 select-none">
+                Я подтверждаю достоверность информации и согласен: <strong class="text-rose-400">если жалоба окажется ложной, мой аккаунт будет заблокирован на 2 дня</strong>.
+              </label>
+            </div>
+
+            <div class="pt-2">
+              <button 
+                type="submit" 
+                class="w-full py-3.5 px-6 rounded-xl font-black text-slate-950 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-400 shadow-xl shadow-amber-500/25 active:scale-[0.99] transition-all flex items-center justify-center space-x-2 text-sm sm:text-base uppercase tracking-wider"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <span>Отправить жалобу на модерацию</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Complaints Live Registry Feed -->
+      <div class="max-w-4xl mx-auto space-y-4 pt-4">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+              <span>Реестр активных жалоб</span>
+              <span id="complaints-counter-badge" class="font-mono text-xs px-2 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-slate-700">0</span>
+            </h3>
+            <p class="text-[11px] sm:text-xs text-slate-400">Синхронизировано с базой инспекции</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="complaints-status-filter" onchange="filterReports()" class="glass-input text-xs text-white rounded-lg px-2.5 py-1.5 outline-none">
+              <option value="all">Все статусы</option>
+              <option value="pending">На рассмотрении</option>
+              <option value="banned">Читер забанен</option>
+              <option value="rejected">Отклонено</option>
+            </select>
+
+            <div class="relative flex-1 sm:w-48">
+              <input 
+                type="text" 
+                id="complaints-search-input" 
+                oninput="filterReports()" 
+                placeholder="Поиск по нику..." 
+                class="glass-input w-full pl-7 pr-3 py-1.5 rounded-lg text-xs text-white placeholder-slate-500 outline-none"
+              />
+              <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2 top-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div id="complaints-feed" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: BANS DATABASE (5,000+ RECORDS)                          -->
+    <!-- ============================================================== -->
+    <section id="tab-bans" class="tab-pane space-y-6 hidden">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-2">
+        <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold tracking-wide uppercase">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          <span>Реестр Блокировок</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          База банов читеров (5,000 записей)
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm">
+          Всего античитом заблокировано более <strong class="text-rose-400">10,840+</strong> читеров. Ниже представлен открытый реестр блокировок.
+        </p>
+      </div>
+
+      <!-- Controls: Search & Category Filter for 5,000 database -->
+      <div class="max-w-5xl mx-auto glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        
+        <div class="relative w-full sm:w-72">
+          <input 
+            type="text" 
+            id="ban-search-input" 
+            oninput="handleBanSearch()" 
+            placeholder="Поиск по нику или ID бана..." 
+            class="glass-input w-full pl-8 pr-3 py-2 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 outline-none"
+          />
+          <svg class="w-4 h-4 text-slate-500 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+          <select id="ban-reason-filter" onchange="handleBanSearch()" class="glass-input text-xs text-white rounded-xl px-3 py-2 outline-none">
+            <option value="all">Все категории читов</option>
+            <option value="SpeedHack">SpeedHack</option>
+            <option value="AimBot">AimBot / Silent-Aim</option>
+            <option value="FlyHack">FlyHack (Полет)</option>
+            <option value="GodMode">GodMode (Бессмертие)</option>
+            <option value="Краш сервера">Спам / Краш сервера</option>
+            <option value="Модифицированный APK">Модифицированный APK</option>
+            <option value="Ложная жалоба">Ложная жалоба (2 дня)</option>
+            <option value="Фейк Администрации">Фейк Администрации</option>
+          </select>
+
+          <span class="text-xs font-mono text-slate-400 px-2 py-1 bg-slate-900 rounded-lg border border-slate-800" id="ban-results-count">
+            5,000 записей
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Ban Table Grid -->
+      <div class="max-w-5xl mx-auto glass-panel rounded-3xl p-3 sm:p-6 border border-slate-800 shadow-xl overflow-hidden">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 text-[11px] uppercase tracking-wider font-mono">
+                <th class="py-3 px-3">ID БАНА</th>
+                <th class="py-3 px-3">НИКНЕЙМ</th>
+                <th class="py-3 px-3">НАРУШЕНИЕ</th>
+                <th class="py-3 px-3">СЕРВЕР</th>
+                <th class="py-3 px-3">СРОК</th>
+                <th class="py-3 px-3">ДАТА</th>
+              </tr>
+            </thead>
+            <tbody id="ban-table-body" class="divide-y divide-slate-800/60 font-mono text-xs text-slate-300">
+              <!-- Dynamically populated with fast pagination -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pt-4 mt-2 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <span class="text-slate-400 font-mono text-[11px]" id="pagination-info">
+            Показаны 1 - 20 из 5,000
+          </span>
+
+          <div class="flex items-center space-x-1.5 font-mono">
+            <button onclick="changeBanPage(1)" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-30" id="btn-first-page">«</button>
+            <button onclick="changeBanPage(currentBanPage - 1)" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-30" id="btn-prev-page">Назад</button>
+            <span class="px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold" id="current-page-display">1 / 250</span>
+            <button onclick="changeBanPage(currentBanPage + 1)" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-30" id="btn-next-page">Вперед</button>
+            <button onclick="changeBanPage(totalBanPages)" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-30" id="btn-last-page">»</button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 5: RULES & REGULATIONS                                     -->
+    <!-- ============================================================== -->
+    <section id="tab-rules" class="tab-pane space-y-6 hidden">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-2">
+        <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-semibold tracking-wide uppercase">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Регламент и Кодекс</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Правила проверок и безопасность
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm">
+          Официальные правила работы Администрации и порядок обжалования блокировок.
+        </p>
+      </div>
+
+      <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        
+        <div class="glass-panel p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h4 class="text-base font-bold text-white">Процедура проверки 24 часа в Telegram</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Проверка проходит исключительно в Telegram. Во время проверки игроку в Telegram высылается проверочный код, который он должен подтвердить. Инспекция длится 24 часа. По ответу от Администрации в Telegram сразу понятно, прошёл человек проверку или аккаунт отправляется в бан.
+          </p>
+        </div>
+
+        <div class="glass-panel p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-3">
+          <div class="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <h4 class="text-base font-bold text-white">Ответственность за ложный донос</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Если жалоба, отправленная через форум, окажется сфабрикованной или ложной с целью подставить честного игрока, заявитель отправляется в бан на 2 дня без права досрочной апелляции.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Mobile Bottom Navigation (Smartphones - 4 Tabs) -->
+  <aside class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-2 py-2">
+    <div class="flex items-center justify-around">
+      
+      <button onclick="switchTab('verification')" id="mob-verification" class="mob-nav-btn flex flex-col items-center py-1 px-3 text-amber-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="text-[10px] font-semibold mt-1">Инфо</span>
+      </button>
+
+      <button onclick="switchTab('reports')" id="mob-reports" class="mob-nav-btn flex flex-col items-center py-1 px-3 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+        </svg>
+        <span class="text-[10px] font-semibold mt-1">Жалобы</span>
+      </button>
+
+      <button onclick="switchTab('bans')" id="mob-bans" class="mob-nav-btn flex flex-col items-center py-1 px-3 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+        <span class="text-[10px] font-semibold mt-1">Баны 5k</span>
+      </button>
+
+      <button onclick="switchTab('rules')" id="mob-rules" class="mob-nav-btn flex flex-col items-center py-1 px-3 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span class="text-[10px] font-semibold mt-1">Правила</span>
+      </button>
+
+    </div>
+  </aside>
+
+  <!-- MODAL: Confirmation with MANDATORY 2-day ban warning (No alert()) -->
+  <div id="ban-warning-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-panel max-w-md w-full rounded-3xl p-5 sm:p-7 border-2 border-amber-500/50 shadow-2xl relative text-center space-y-4">
+      
+      <div class="mx-auto w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg">
+        <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+
+      <h3 class="text-xl sm:text-2xl font-black text-white">Жалоба принята в обработку!</h3>
+      
+      <p class="text-xs text-slate-300">
+        Заявка передана дежурным администраторам Chicken Gun под номером <span id="modal-ticket-num" class="font-mono text-amber-400 font-bold">#CG-9921</span>.
+      </p>
+
+      <!-- Crucial Mandatory Text Required by User -->
+      <div class="p-3.5 rounded-2xl bg-rose-500/15 border-2 border-rose-500/50 text-left space-y-1">
+        <div class="flex items-center space-x-1.5 text-rose-400 font-extrabold text-[11px] uppercase tracking-wider">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>
+          </svg>
+          <span>Официальное предупреждение</span>
+        </div>
+        <p class="text-xs sm:text-sm font-bold text-rose-300 leading-snug">
+          если жалоба отправленная вами окажется ложной, ваш аккаунт будет находится в бане на 2 дня
+        </p>
+      </div>
+
+      <button onclick="closeBanModal()" class="w-full py-3 px-4 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm transition-colors shadow-lg shadow-amber-500/20 uppercase tracking-wide">
+        Понятно, я согласен
+      </button>
+
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL: Fullscreen Inspector Photo Viewer -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/90 backdrop-blur-xl hidden" onclick="closeLightbox()">
+    <div class="relative max-w-sm sm:max-w-md w-full bg-slate-900 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+      <div class="p-3 bg-slate-950 flex items-center justify-between border-b border-slate-800">
+        <span class="text-xs font-bold text-amber-400">Официальный профиль Администрации Chicken Gun</span>
+        <button onclick="closeLightbox()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-2 bg-slate-950 flex justify-center">
+        <img id="lightbox-img" src="Administration.jpg" alt="Администрация" class="max-h-[75vh] w-auto object-contain rounded-xl" />
+      </div>
+      <div class="p-3 bg-slate-900 border-t border-slate-800 text-center">
+        <p class="text-xs text-slate-300 font-medium">«Администрация серверов игры Chicken Gun занимаемся проверкой на читы»</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Message Box -->
+  <div id="toast-box" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="glass-panel px-4 py-2.5 rounded-xl border border-amber-500/50 text-xs text-amber-300 shadow-xl flex items-center space-x-2">
+      <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+      <span id="toast-text">Действие выполнено</span>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. GENERATE MASSIVE 5,000 BAN DATABASE ALGORITHMICALLY
+    // -------------------------------------------------------------
+    const CHEAT_REASONS = [
+      'SpeedHack (Быстрый бег)',
+      'AimBot / Silent-Aim',
+      'FlyHack (Полет)',
+      'GodMode (Бессмертие)',
+      'Краш сервера / Спам объектами',
+      'Модифицированный APK',
+      'Ложная жалоба (Клевета 2 дня)',
+      'Фейк Администрации'
+    ];
+
+    const SERVERS = ['EU-Sandbox #12', 'RU-Sandbox #04', 'US-PVP #09', 'ASIA-Duels #2', 'EU-Town3 #5', 'RU-BattleRoyale #1'];
+    const DURATIONS = ['PERMANENT', 'HWID BAN', '30 ДНЕЙ', '2 ДНЯ (БАН)'];
+
+    const NICK_PREFIXES = ['Noob', 'Dark', 'Ghost', 'Super', 'Mega', 'Shadow', 'Fast', 'Toxic', 'Sniper', 'Killer', 'Chicken', 'Rooster', 'Pro', 'Godly', 'Demon', 'Frost', 'Iron', 'Cyber'];
+    const NICK_SUFFIXES = ['Hacker', 'Slayer', 'Gamer', 'King', 'Boy', 'Master', 'Cheater', 'Gunner', 'Strike', 'Lord', 'Bot', 'Destroyer', 'God', 'Shooter', 'Warrior', '777', '999', '2026'];
+
+    const ALL_BANS = [];
+    const TOTAL_RECORDS = 5000;
+
+    // Fast generation of 5,000 realistic Chicken Gun bans
+    for (let i = 1; i <= TOTAL_RECORDS; i++) {
+      const p = NICK_PREFIXES[i % NICK_PREFIXES.length];
+      const s = NICK_SUFFIXES[(i * 3) % NICK_SUFFIXES.length];
+      const num = (i * 17) % 999;
+      const nick = `${p}_${s}${num > 0 ? num : ''}`;
+      
+      const reasonIdx = (i * 7) % CHEAT_REASONS.length;
+      const reason = CHEAT_REASONS[reasonIdx];
+      const server = SERVERS[(i * 5) % SERVERS.length];
+
+      let duration = 'PERMANENT';
+      if (reason.includes('Ложная жалоба')) duration = '2 ДНЯ (БАН)';
+      else if (reason.includes('Фейк')) duration = '30 ДНЕЙ';
+      else if (i % 4 === 0) duration = 'HWID BAN';
+
+      const day = (i % 28) + 1;
+      const month = ((i % 8) + 1).toString().padStart(2, '0');
+      const date = `${day.toString().padStart(2, '0')}.${month}.2026`;
+
+      ALL_BANS.push({
+        id: `#CG-${10000 + i}`,
+        nick: nick,
+        reason: reason,
+        server: server,
+        duration: duration,
+        date: date
+      });
+    }
+
+    let filteredBans = [...ALL_BANS];
+    let currentBanPage = 1;
+    const bansPerPage = 20;
+    let totalBanPages = Math.ceil(filteredBans.length / bansPerPage);
+
+    function renderBanTable() {
+      const tbody = document.getElementById('ban-table-body');
+      const paginationInfo = document.getElementById('pagination-info');
+      const pageDisplay = document.getElementById('current-page-display');
+      const countDisplay = document.getElementById('ban-results-count');
+
+      totalBanPages = Math.ceil(filteredBans.length / bansPerPage) || 1;
+      if (currentBanPage > totalBanPages) currentBanPage = totalBanPages;
+      if (currentBanPage < 1) currentBanPage = 1;
+
+      const startIndex = (currentBanPage - 1) * bansPerPage;
+      const endIndex = Math.min(startIndex + bansPerPage, filteredBans.length);
+      const pageItems = filteredBans.slice(startIndex, endIndex);
+
+      countDisplay.textContent = `${filteredBans.length.toLocaleString('ru-RU')} записей`;
+      paginationInfo.textContent = `Показаны ${startIndex + 1} - ${endIndex} из ${filteredBans.length.toLocaleString('ru-RU')}`;
+      pageDisplay.textContent = `${currentBanPage} / ${totalBanPages}`;
+
+      document.getElementById('btn-prev-page').disabled = (currentBanPage <= 1);
+      document.getElementById('btn-first-page').disabled = (currentBanPage <= 1);
+      document.getElementById('btn-next-page').disabled = (currentBanPage >= totalBanPages);
+      document.getElementById('btn-last-page').disabled = (currentBanPage >= totalBanPages);
+
+      if (pageItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-6 text-center text-slate-500 font-sans">
+              Нарушители по данному запросу не найдены.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = pageItems.map(ban => {
+        let badgeColor = 'bg-rose-500/20 text-rose-300';
+        if (ban.duration.includes('2 ДНЯ')) badgeColor = 'bg-amber-500/20 text-amber-300';
+        if (ban.duration.includes('30 ДНЕЙ')) badgeColor = 'bg-sky-500/20 text-sky-300';
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-2.5 px-3 font-bold text-amber-400">${ban.id}</td>
+            <td class="py-2.5 px-3 font-sans font-bold text-white">${ban.nick}</td>
+            <td class="py-2.5 px-3 text-slate-300">${ban.reason}</td>
+            <td class="py-2.5 px-3 text-slate-400">${ban.server}</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeColor}">${ban.duration}</span></td>
+            <td class="py-2.5 px-3 text-slate-500">${ban.date}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function handleBanSearch() {
+      const query = (document.getElementById('ban-search-input')?.value || '').toLowerCase().trim();
+      const reasonFilter = document.getElementById('ban-reason-filter')?.value || 'all';
+
+      filteredBans = ALL_BANS.filter(b => {
+        const matchesQuery = b.nick.toLowerCase().includes(query) || b.id.toLowerCase().includes(query);
+        const matchesReason = (reasonFilter === 'all') || b.reason.includes(reasonFilter);
+        return matchesQuery && matchesReason;
+      });
+
+      currentBanPage = 1;
+      renderBanTable();
+    }
+
+    function changeBanPage(newPage) {
+      if (newPage < 1 || newPage > totalBanPages) return;
+      currentBanPage = newPage;
+      renderBanTable();
+    }
+
+    // -------------------------------------------------------------
+    // 2. FORUM COMPLAINTS DATA MANAGEMENT
+    // -------------------------------------------------------------
+    const INITIAL_REPORTS = [
+      {
+        id: '#CG-9831',
+        violator: 'X_FastSniper_X',
+        violatorTg: '@fast_cg',
+        reporter: 'WingMaster',
+        room: 'EU-PVP #09',
+        reason: 'SpeedHack (Быстрый бег / Полет)',
+        proof: 'https://youtu.be/example1',
+        desc: 'Летал над крышами на карте Space2 и убивал сквозь текстуры.',
+        status: 'banned',
+        statusLabel: 'Читер забанен',
+        time: '14 минут назад'
+      },
+      {
+        id: '#CG-9830',
+        violator: 'GodlyRooster_77',
+        violatorTg: '',
+        reporter: 'Player_4021',
+        room: 'RU-Sandbox #04',
+        reason: 'Бессмертие (GodMode)',
+        proof: 'https://imgur.com/example2',
+        desc: 'Не получает урон от базуки в упор.',
+        status: 'pending',
+        statusLabel: 'На рассмотрении',
+        time: '42 минуты назад'
+      },
+      {
+        id: '#CG-9828',
+        violator: 'ChickenBro_Cool',
+        violatorTg: '@cool_bro',
+        reporter: 'MegaScout',
+        room: 'US-Duels #01',
+        reason: 'AimBot & Silent-Aim',
+        proof: 'https://drive.google.com/ex',
+        desc: 'Обычный рассинхрон пинга. По логам читы не подтверждены.',
+        status: 'rejected',
+        statusLabel: 'Отклонено',
+        time: '3 часа назад'
+      }
+    ];
+
+    function getStoredReports() {
+      const saved = localStorage.getItem('cg_complaints_db');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) { return INITIAL_REPORTS; }
+      }
+      localStorage.setItem('cg_complaints_db', JSON.stringify(INITIAL_REPORTS));
+      return INITIAL_REPORTS;
+    }
+
+    function saveReports(items) {
+      localStorage.setItem('cg_complaints_db', JSON.stringify(items));
+    }
+
+    function renderReports(items) {
+      const feed = document.getElementById('complaints-feed');
+      const badge = document.getElementById('complaints-counter-badge');
+      if (!feed) return;
+
+      badge.textContent = `${items.length} активных`;
+
+      if (items.length === 0) {
+        feed.innerHTML = `
+          <div class="p-8 text-center text-slate-500 text-xs glass-panel rounded-2xl">
+            По вашему запросу обращений не найдено.
+          </div>
+        `;
+        return;
+      }
+
+      feed.innerHTML = items.map(report => {
+        let badgeColor = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+        if (report.status === 'banned') badgeColor = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+        if (report.status === 'rejected') badgeColor = 'bg-slate-700/40 text-slate-400 border-slate-600/40';
+
+        return `
+          <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2.5 transition-all hover:border-slate-700">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center space-x-2">
+                <span class="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">${report.id}</span>
+                <span class="text-sm font-bold text-white">${report.violator}</span>
+                ${report.violatorTg ? `<span class="text-xs text-amber-300 font-mono">(${report.violatorTg})</span>` : ''}
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badgeColor}">
+                ${report.statusLabel}
+              </span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong class="text-amber-400">${report.reason}:</strong> ${report.desc}
+            </p>
+            <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80 gap-2">
+              <span>Сервер: <span class="text-white">${report.room}</span> • Заявитель: <span class="text-slate-300">${report.reporter}</span></span>
+              <span class="text-slate-500 font-mono">${report.time}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterReports() {
+      const term = (document.getElementById('complaints-search-input')?.value || '').toLowerCase();
+      const status = document.getElementById('complaints-status-filter')?.value || 'all';
+      const all = getStoredReports();
+
+      const filtered = all.filter(r => {
+        const matchesTerm = r.violator.toLowerCase().includes(term) || r.id.toLowerCase().includes(term);
+        const matchesStatus = (status === 'all') || (r.status === status);
+        return matchesTerm && matchesStatus;
+      });
+
+      renderReports(filtered);
+    }
+
+    function handleComplaintSubmit(e) {
+      e.preventDefault();
+
+      const violator = document.getElementById('violator-nick').value.trim();
+      let violatorTg = document.getElementById('violator-tg').value.trim();
+      const reporter = document.getElementById('reporter-nick').value.trim();
+      const room = document.getElementById('server-room').value.trim();
+      const reason = document.getElementById('complaint-reason').value;
+      const proof = document.getElementById('proof-url').value.trim();
+      const desc = document.getElementById('complaint-desc').value.trim();
+
+      if (!violator || !reporter || !room || !reason || !proof || !desc) return;
+
+      if (violatorTg && !violatorTg.startsWith('@')) {
+        violatorTg = '@' + violatorTg;
+      }
+
+      const randomId = `#CG-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const newComplaint = {
+        id: randomId,
+        violator,
+        violatorTg,
+        reporter,
+        room,
+        reason,
+        proof,
+        desc,
+        status: 'pending',
+        statusLabel: 'На рассмотрении',
+        time: 'Только что'
+      };
+
+      const existing = getStoredReports();
+      existing.unshift(newComplaint);
+      saveReports(existing);
+      renderReports(existing);
+
+      document.getElementById('complaint-form').reset();
+
+      // Show strict 2-day ban warning modal
+      document.getElementById('modal-ticket-num').textContent = randomId;
+      document.getElementById('ban-warning-modal').classList.remove('hidden');
+    }
+
+    function closeBanModal() {
+      document.getElementById('ban-warning-modal').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // 3. IMAGE HANDLING & LIGHTBOX (Administration.jpg)
+    // -------------------------------------------------------------
+    function openLightbox() {
+      const mainImg = document.getElementById('admin-card-img');
+      const lightboxImg = document.getElementById('lightbox-img');
+      lightboxImg.src = mainImg.src;
+      document.getElementById('lightbox-modal').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').classList.add('hidden');
+    }
+
+    // Handles fallback if Administration.jpg is missing in the root directory
+    function handleAdminPhotoFallback(img) {
+      img.onerror = null;
+      // High detail SVG replica of the mafioso rooster
+      img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 650" fill="%230f172a"><rect width="400" height="650" fill="%23080c16"/><circle cx="200" cy="270" r="130" fill="%23f8fafc"/><ellipse cx="200" cy="180" rx="120" ry="30" fill="%23334155"/><rect x="120" y="110" width="160" height="70" rx="15" fill="%231e293b"/><rect x="135" y="235" width="55" height="38" rx="8" fill="%23dc2626"/><rect x="210" y="235" width="55" height="38" rx="8" fill="%23dc2626"/><circle cx="162" cy="254" r="10" fill="%23000"/><circle cx="237" cy="254" r="10" fill="%23000"/><polygon points="200,280 180,325 220,325" fill="%23f59e0b"/><rect x="75" y="315" width="45" height="85" rx="8" fill="%23eab308"/><rect x="280" y="315" width="45" height="85" rx="8" fill="%23eab308"/><text x="200" y="470" font-family="Arial" font-size="24" font-weight="900" fill="%23ffffff" text-anchor="middle">АДМИНИСТРАЦИЯ</text><text x="200" y="505" font-family="Arial" font-size="14" fill="%2394a3b8" text-anchor="middle">занимаемся проверкой на читы</text></svg>';
+    }
+
+    // Helper to test any photo locally
+    function previewLocalPhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('admin-card-img').src = e.target.result;
+        document.getElementById('lightbox-img').src = e.target.result;
+        showToast('Фото успешно обновлено!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // -------------------------------------------------------------
+    // 4. TOAST NOTIFICATIONS
+    // -------------------------------------------------------------
+    let toastTimeout;
+    function showToast(text) {
+      const box = document.getElementById('toast-box');
+      const toastText = document.getElementById('toast-text');
+      toastText.textContent = text;
+      box.classList.remove('translate-y-[-100px]', 'opacity-0');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        box.classList.add('translate-y-[-100px]', 'opacity-0');
+      }, 2600);
+    }
+
+    // -------------------------------------------------------------
+    // 5. TAB SWITCHING SYSTEM (4 TABS)
+    // -------------------------------------------------------------
+    function switchTab(tabId) {
+      const tabs = ['verification', 'reports', 'bans', 'rules'];
+      
+      tabs.forEach(t => {
+        const pane = document.getElementById(`tab-${t}`);
+        const deskBtn = document.getElementById(`nav-${t}`);
+        const mobBtn = document.getElementById(`mob-${t}`);
+
+        if (t === tabId) {
+          if (pane) {
+            pane.classList.remove('hidden');
+            pane.classList.add('block');
+          }
+          if (deskBtn) {
+            deskBtn.classList.remove('text-slate-400', 'hover:bg-slate-800/50');
+            deskBtn.classList.add('text-white', 'bg-slate-800', 'border', 'border-slate-700/80', 'shadow-sm');
+          }
+          if (mobBtn) {
+            mobBtn.classList.remove('text-slate-400');
+            mobBtn.classList.add('text-amber-400');
+          }
+        } else {
+          if (pane) {
+            pane.classList.add('hidden');
+            pane.classList.remove('block');
+          }
+          if (deskBtn) {
+            deskBtn.classList.remove('text-white', 'bg-slate-800', 'border', 'border-slate-700/80', 'shadow-sm');
+            deskBtn.classList.add('text-slate-400', 'hover:bg-slate-800/50');
+          }
+          if (mobBtn) {
+            mobBtn.classList.remove('text-amber-400');
+            mobBtn.classList.add('text-slate-400');
+          }
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize all components on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderReports(getStoredReports());
+      renderBanTable();
+    });
+  </script>
+</body>
+</html>
